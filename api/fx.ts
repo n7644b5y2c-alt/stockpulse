@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { checkRateLimit } from './_lib/rateLimit';
-import { getCached, setCached } from './_lib/cache';
+import { checkRateLimit } from './_lib/rateLimit.ts';
+import { getCached, setCached } from './_lib/cache.ts';
 
 const QuerySchema = z.object({
   from: z.string().optional().default('USD'),
@@ -31,7 +31,6 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json(cached);
   }
 
-  // Base rate USD -> INR is 83.50
   const rateValue = from.toUpperCase() === 'USD' && to.toUpperCase() === 'INR' ? 83.50 : 1.0;
 
   const responseData = {
@@ -42,7 +41,6 @@ export default async function handler(req: any, res: any) {
     isMock: true,
   };
 
-  // 5 min cache
   setCached(cacheKey, responseData, 300);
   return res.status(200).json(responseData);
 }

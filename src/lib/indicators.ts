@@ -1,4 +1,4 @@
-import type { Candle } from '../schemas';
+import type { Candle } from '../data/schemas';
 
 /**
  * Calculates Simple Moving Average (SMA) on candle close prices.

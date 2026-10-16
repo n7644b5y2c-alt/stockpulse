@@ -1,6 +1,7 @@
 import type {
   Stock,
   Coin,
+  Metal,
   Candle,
   ExpertPick,
   PortfolioHolding,
@@ -16,7 +17,9 @@ export interface DataProvider {
   getStocks(): Promise<Stock[]>;
   getStock(symbol: string): Promise<Stock | null>;
   getCoins(): Promise<Coin[]>;
-  getTopGainers(limit?: number): Promise<(Stock | Coin)[]>;
+  getMetals(): Promise<Metal[]>;
+  getMetal(symbol: string): Promise<Metal | null>;
+  getTopGainers(limit?: number): Promise<(Stock | Coin | Metal)[]>;
   getCandles(symbol: string, range?: '1W' | '1M' | '3M' | 'ALL'): Promise<Candle[]>;
   getExpertPicks(): Promise<ExpertPick[]>;
   getPortfolio(): Promise<PortfolioHolding[]>;

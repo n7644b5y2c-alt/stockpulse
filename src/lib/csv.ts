@@ -1,4 +1,4 @@
-import { CsvRowSchema, type CsvRow } from '../schemas';
+import { CsvRowSchema, type CsvRow } from '../data/schemas';
 
 export interface CsvParseError {
   lineNumber: number;

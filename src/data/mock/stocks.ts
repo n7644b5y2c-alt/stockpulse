@@ -1,5 +1,5 @@
-import type { Stock } from '../schemas';
-import { generateCandlesForAsset, extractSparkline } from './generators';
+import type { Stock } from '../schemas/index.ts';
+import { generateCandlesForAsset, extractSparkline } from './generators.ts';
 
 interface RawStock {
   symbol: string;

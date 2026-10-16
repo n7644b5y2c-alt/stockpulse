@@ -40,7 +40,7 @@ export const DevData: React.FC = () => {
   const { data: picks = [], isLoading: picksLoading, isError: picksError, refetch: refetchPicks } = useExpertPicks();
   const { analytics, isLoading: portLoading, isError: portError, refetch: refetchPort } = usePortfolioAnalytics();
   const { importCsvRows } = usePortfolio();
-  const { indicators, latestSMA, latestEMA, latestRSI, latestBB, isLoading: indLoading } = useIndicators(selectedSymbol);
+  const { latestSMA, latestEMA, latestRSI, latestBB, isLoading: indLoading } = useIndicators(selectedSymbol);
   const { ticks, status: streamStatus, pause: pauseStream, resume: resumeStream } = usePriceStream(['NVDA', 'TSLA', 'PLTR', 'AMD', 'BTC', 'ETH', 'SOL']);
   const { alerts, createAlert, deleteAlert, requestPermission } = useAlerts();
   const { data: aiSummary, isLoading: aiLoading } = useAiSummary(selectedSymbol);

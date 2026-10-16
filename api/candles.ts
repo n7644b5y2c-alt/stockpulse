@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { checkRateLimit } from './_lib/rateLimit';
-import { getCached, setCached } from './_lib/cache';
-import { getMockCandles } from '../src/data/mock/candles';
+import { checkRateLimit } from './_lib/rateLimit.ts';
+import { getCached, setCached } from './_lib/cache.ts';
+import { getMockCandles } from '../src/data/mock/candles.ts';
 
 const QuerySchema = z.object({
   symbol: z.string().min(1),
@@ -39,7 +39,6 @@ export default async function handler(req: any, res: any) {
     });
   }
 
-  // 5 min cache (300 seconds)
   setCached(cacheKey, candles, 300);
   return res.status(200).json(candles);
 }

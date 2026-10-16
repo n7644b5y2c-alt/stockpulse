@@ -1,16 +1,7 @@
-import type { MarketHoursStatus } from '../types';
-
-/**
- * Market Hours Utility
- *
- * NOTE ON HOLIDAY CALENDAR:
- * Standard scheduled market holidays (e.g. Christmas, Diwali, New Year's Day, Martin Luther King Jr. Day)
- * are omitted in this stage to maintain lightweight pure deterministic calculation without external API dependencies.
- * Real market exchange calendar sync will be integrated in future phases.
- */
+import type { MarketHoursStatus } from '../types/index.ts';
 
 interface MarketDefinition {
-  market: 'NYSE' | 'NSE' | 'BSE';
+  market: 'NYSE' | 'NSE' | 'BSE' | 'METALS';
   timezone: string;
   preOpenStartHour: number;
   preOpenStartMinute: number;
@@ -51,15 +42,37 @@ const MARKETS: MarketDefinition[] = [
     closeHour: 15,
     closeMinute: 30,
   },
+  {
+    market: 'METALS',
+    timezone: 'America/New_York',
+    preOpenStartHour: 17,
+    preOpenStartMinute: 0,
+    openHour: 18,
+    openMinute: 0,
+    closeHour: 17,
+    closeMinute: 0, // 23h session on weekdays
+  },
 ];
 
 export function getMarketHoursStatus(
-  marketName: 'NYSE' | 'NSE' | 'BSE',
+  marketName: 'NYSE' | 'NSE' | 'BSE' | 'CRYPTO' | 'METALS',
   referenceDate: Date = new Date()
 ): MarketHoursStatus {
+  if (marketName === 'CRYPTO') {
+    return {
+      market: 'CRYPTO',
+      timezone: 'UTC',
+      isOpen: true,
+      isPreOpen: false,
+      status: 'open',
+      localTime: '24/7/365',
+      nextOpen: 'Continuous 24/7 trading',
+      timeToNextOpen: '24/7 Live',
+    };
+  }
+
   const config = MARKETS.find((m) => m.market === marketName) || MARKETS[0];
 
-  // Convert current time to target market's timezone
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: config.timezone,
     year: 'numeric',
@@ -75,12 +88,26 @@ export function getMarketHoursStatus(
   const parts = formatter.formatToParts(referenceDate);
   const getPart = (type: string) => parts.find((p) => p.type === type)?.value || '';
 
-  const weekday = getPart('weekday'); // 'Mon', 'Tue', etc.
+  const weekday = getPart('weekday');
   const hour = parseInt(getPart('hour'), 10);
   const minute = parseInt(getPart('minute'), 10);
   const currentTimeMinutes = hour * 60 + minute;
 
   const isWeekend = weekday === 'Sat' || weekday === 'Sun';
+
+  if (marketName === 'METALS') {
+    const isMetalsOpen = !isWeekend || (weekday === 'Sun' && hour >= 18);
+    return {
+      market: 'METALS',
+      timezone: config.timezone,
+      isOpen: isMetalsOpen,
+      isPreOpen: false,
+      status: isMetalsOpen ? 'open' : 'closed',
+      localTime: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} (${weekday})`,
+      nextOpen: isMetalsOpen ? 'Trading Active' : 'Opens Sun 6:00 PM ET',
+      timeToNextOpen: isMetalsOpen ? 'Session Open' : 'Weekend Break',
+    };
+  }
 
   const preOpenMinutes = config.preOpenStartHour * 60 + config.preOpenStartMinute;
   const openMinutes = config.openHour * 60 + config.openMinute;
@@ -100,7 +127,6 @@ export function getMarketHoursStatus(
     }
   }
 
-  // Calculate time to next open
   let nextOpenDescription = '';
   let timeToNextOpen = '';
 
@@ -112,18 +138,17 @@ export function getMarketHoursStatus(
     nextOpenDescription = `Opens today at ${config.openHour}:${config.openMinute.toString().padStart(2, '0')}`;
     timeToNextOpen = `${diffMin}m`;
   } else {
-    // Determine days until next open
     let daysToAdd = 0;
     if (weekday === 'Fri' && currentTimeMinutes >= closeMinutes) {
-      daysToAdd = 3; // Friday night -> Monday morning
+      daysToAdd = 3;
     } else if (weekday === 'Sat') {
-      daysToAdd = 2; // Saturday -> Monday morning
+      daysToAdd = 2;
     } else if (weekday === 'Sun') {
-      daysToAdd = 1; // Sunday -> Monday morning
+      daysToAdd = 1;
     } else if (currentTimeMinutes >= closeMinutes) {
-      daysToAdd = 1; // Weekday evening -> Next morning
+      daysToAdd = 1;
     } else {
-      daysToAdd = 0; // Early weekday morning before pre-open
+      daysToAdd = 0;
     }
 
     let minutesUntilOpen = 0;
@@ -160,5 +185,7 @@ export function getAllMarketHours(referenceDate: Date = new Date()): MarketHours
     getMarketHoursStatus('NYSE', referenceDate),
     getMarketHoursStatus('NSE', referenceDate),
     getMarketHoursStatus('BSE', referenceDate),
+    getMarketHoursStatus('CRYPTO', referenceDate),
+    getMarketHoursStatus('METALS', referenceDate),
   ];
 }

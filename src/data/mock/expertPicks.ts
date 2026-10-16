@@ -1,4 +1,4 @@
-import type { ExpertPick } from '../schemas';
+import type { ExpertPick } from '../schemas/index.ts';
 
 export const mockExpertPicks: ExpertPick[] = [
   // Top coins highlighted by default

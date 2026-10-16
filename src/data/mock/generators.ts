@@ -1,4 +1,4 @@
-import type { Candle } from '../schemas';
+import type { Candle } from '../schemas/index.ts';
 
 /**
  * Deterministically generates 90 daily OHLC candles ending exactly at targetPrice.

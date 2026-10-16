@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { checkRateLimit } from './_lib/rateLimit';
-import { getCached, setCached } from './_lib/cache';
-import { mockStocks } from '../src/data/mock/stocks';
-import { mockCoins } from '../src/data/mock/coins';
+import { checkRateLimit } from './_lib/rateLimit.ts';
+import { getCached, setCached } from './_lib/cache.ts';
+import { mockStocks } from '../src/data/mock/stocks.ts';
+import { mockCoins } from '../src/data/mock/coins.ts';
 
 const QuerySchema = z.object({
   symbol: z.string().optional(),
@@ -69,7 +69,6 @@ export default async function handler(req: any, res: any) {
     resultData = [...mockStocks, ...mockCoins];
   }
 
-  // 30 second cache for quotes
   setCached(cacheKey, resultData, 30);
   return res.status(200).json(resultData);
 }

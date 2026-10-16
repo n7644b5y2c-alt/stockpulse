@@ -1,10 +1,11 @@
-import type { Candle } from '../schemas';
-import { mockStocks } from './stocks';
-import { mockCoins } from './coins';
+import type { Candle } from '../schemas/index.ts';
+import { mockStocks } from './stocks.ts';
+import { mockCoins } from './coins.ts';
+import { mockMetals } from './metals.ts';
 
 const candleMap = new Map<string, Candle[]>();
 
-[...mockStocks, ...mockCoins].forEach((asset) => {
+[...mockStocks, ...mockCoins, ...mockMetals].forEach((asset) => {
   if (asset.candles) {
     candleMap.set(asset.symbol.toUpperCase(), asset.candles);
   }
@@ -16,6 +17,6 @@ export function getMockCandles(symbol: string, range: '1W' | '1M' | '3M' | 'ALL'
     return [];
   }
 
-  const count = range === '1W' ? 7 : range === '1M' ? 30 : range === '1M' ? 30 : 90;
+  const count = range === '1W' ? 7 : range === '1M' ? 30 : 90;
   return allCandles.slice(-count);
 }

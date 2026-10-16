@@ -1,5 +1,5 @@
-import type { Coin } from '../schemas';
-import { generateCandlesForAsset, extractSparkline } from './generators';
+import type { Coin } from '../schemas/index.ts';
+import { generateCandlesForAsset, extractSparkline } from './generators.ts';
 
 interface RawCoin {
   symbol: string;

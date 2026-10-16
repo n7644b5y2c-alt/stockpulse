@@ -1,15 +1,15 @@
-import type { PortfolioHolding, PortfolioAnalytics } from '../types';
+import type { PortfolioHolding, PortfolioAnalytics } from '../types/index.ts';
 
 export interface PriceLookup {
   [symbol: string]: {
     price: number;
     name?: string;
-    assetType?: 'stock' | 'coin';
+    assetType?: 'stock' | 'coin' | 'metal';
   };
 }
 
 /**
- * Calculates consolidated portfolio valuation, P/L, asset allocation,
+ * Calculates consolidated portfolio valuation, P/L, asset allocation (stock, coin, metal),
  * and identifies top and bottom performers.
  */
 export function calculatePortfolioAnalytics(
@@ -20,6 +20,7 @@ export function calculatePortfolioAnalytics(
   let totalCostBasis = 0;
   let stockValue = 0;
   let coinValue = 0;
+  let metalValue = 0;
 
   // Compute individual holding P/L
   const intermediateHoldings = holdings.map((h) => {
@@ -40,6 +41,8 @@ export function calculatePortfolioAnalytics(
 
     if (h.assetType === 'stock') {
       stockValue += itemValue;
+    } else if (h.assetType === 'metal') {
+      metalValue += itemValue;
     } else {
       coinValue += itemValue;
     }
@@ -81,6 +84,7 @@ export function calculatePortfolioAnalytics(
 
   const stockAllocation = currentValue > 0 ? Number(((stockValue / currentValue) * 100).toFixed(2)) : 0;
   const coinAllocation = currentValue > 0 ? Number(((coinValue / currentValue) * 100).toFixed(2)) : 0;
+  const metalAllocation = currentValue > 0 ? Number(((metalValue / currentValue) * 100).toFixed(2)) : 0;
 
   return {
     currentValue: Number(currentValue.toFixed(2)),
@@ -91,6 +95,7 @@ export function calculatePortfolioAnalytics(
     allocationByType: {
       stock: stockAllocation,
       coin: coinAllocation,
+      metal: metalAllocation,
     },
     bestPerformer,
     worstPerformer,

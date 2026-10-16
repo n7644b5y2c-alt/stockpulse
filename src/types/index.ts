@@ -1,12 +1,13 @@
 /**
- * StockPulse Core TypeScript Definitions (Stage 1)
+ * StockPulse Core TypeScript Definitions (Stage 2 Redesigned)
  */
 
-export * from '../data/schemas';
+export * from '../data/schemas/index.ts';
 
 import type {
   Stock as ZodStock,
   Coin as ZodCoin,
+  Metal as ZodMetal,
   Candle,
   PriceTick,
   PriceAlert,
@@ -16,11 +17,13 @@ import type {
   FearGreedData,
   AiSummaryData,
   FxRate,
-} from '../data/schemas';
+  ChartDrawing,
+} from '../data/schemas/index.ts';
 
 export type {
   ZodStock,
   ZodCoin,
+  ZodMetal,
   Candle,
   PriceTick,
   PriceAlert,
@@ -30,9 +33,10 @@ export type {
   FearGreedData,
   AiSummaryData,
   FxRate,
+  ChartDrawing,
 };
 
-export type AssetType = 'stock' | 'coin';
+export type AssetType = 'stock' | 'coin' | 'metal';
 
 export type PriceDirection = 'up' | 'down' | 'flat';
 
@@ -66,7 +70,7 @@ export interface IndicatorValues {
 }
 
 export interface MarketHoursStatus {
-  market: 'NYSE' | 'NSE' | 'BSE';
+  market: 'NYSE' | 'NSE' | 'BSE' | 'CRYPTO' | 'METALS';
   timezone: string;
   isOpen: boolean;
   isPreOpen: boolean;
@@ -85,7 +89,7 @@ export interface PortfolioAnalytics {
     id: string;
     symbol: string;
     name: string;
-    assetType: 'stock' | 'coin';
+    assetType: 'stock' | 'coin' | 'metal';
     quantity: number;
     avgBuyPrice: number;
     currentPrice: number;
@@ -98,6 +102,7 @@ export interface PortfolioAnalytics {
   allocationByType: {
     stock: number;
     coin: number;
+    metal: number;
   };
   bestPerformer: { symbol: string; gainLossPercent: number } | null;
   worstPerformer: { symbol: string; gainLossPercent: number } | null;

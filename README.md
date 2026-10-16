@@ -1,80 +1,131 @@
 # StockPulse — Minimalist Market Dashboard
 
-StockPulse is a calm, data-first stock and cryptocurrency dashboard tailored for retail investors and students. It highlights **rising prices first**, maintains strict typographic hierarchy with Inter and JetBrains Mono, and is built on a token-driven design system.
+StockPulse is a calm, data-first stock and cryptocurrency dashboard tailored for retail investors and students. It highlights **rising prices first**, maintains strict typographic hierarchy with Inter and JetBrains Mono, and is built on a typed, token-driven design system with swappable data providers.
 
 > **Disclaimer:** Demo project with simulated mock data. Not financial advice.
 
 ---
 
-## Tech Stack
+## Architecture Diagram
 
-- **Framework**: React 19 + TypeScript (via Vite)
-- **Routing**: React Router (`react-router-dom` v7)
-- **Styling**: Tailwind CSS with custom CSS variable design tokens
-- **Icons**: Lucide React
-- **Fonts**: `@fontsource/inter` (UI) and `@fontsource/jetbrains-mono` (metrics, tickers, and prices)
-- **Charts**: Recharts (installed, ready for Stage 2)
+```mermaid
+graph TD
+  subgraph Client ["Client Browser (React 19 + TypeScript)"]
+    Home["Home Page (useTopGainers)"]
+    DevData["/dev-data (Data & Engine Inspector)"]
+    Shell["Footer Badges (Mock data, Simulated live)"]
+    Offline["OfflineBanner (navigator.onLine)"]
+  end
 
----
+  subgraph Hooks ["Custom Hook Abstraction Layer"]
+    useGainers["useTopGainers & useStocks"]
+    useStream["usePriceStream (WebSockets / Sim)"]
+    usePort["usePortfolio & usePortfolioAnalytics"]
+    useInd["useIndicators (SMA, EMA, RSI, BB)"]
+    useAlerts["useAlerts (Price crossing & Notifications)"]
+    useCurr["useCurrency & useMarketHours"]
+    useAI["useAiSummary & useFearGreed"]
+  end
 
-## Design System Tokens
+  subgraph Providers ["Swappable Provider Layer (src/data/providers)"]
+    DataProvider["DataProvider Interface"]
+    MockProvider["MockProvider (30 stocks, 12 coins, 90d candles)"]
+    RealProvider["RealProvider (Proxied)"]
+  end
 
-The application defaults to Dark Mode with a flicker-free toggle to Light Mode. All colors are defined in `src/styles/tokens.css` and mapped through `tailwind.config.js`:
+  subgraph Proxy ["Serverless Proxy (api/)"]
+    QuotesAPI["/api/quotes"]
+    CandlesAPI["/api/candles"]
+    FxAPI["/api/fx"]
+    AiAPI["/api/ai-summary"]
+    EmailAPI["/api/send-alert-email"]
+  end
 
-| Token | Dark Mode (Default) | Light Mode | Description |
-| :--- | :--- | :--- | :--- |
-| `--bg-primary` | `#0B0D10` | `#F8FAFC` | Main canvas background |
-| `--bg-surface` | `#12151A` | `#FFFFFF` | Cards & container surfaces |
-| `--border-color` | `#1E232B` | `#E2E8F0` | Subtle hairline borders |
-| `--text-primary` | `#E6E8EB` | `#0F172A` | High-contrast body text |
-| `--text-muted` | `#8A919E` | `#64748B` | Secondary details & labels |
-| `--color-profit` | `#22C55E` | `#16A34A` | Rising assets & gains |
-| `--color-loss` | `#EF4444` | `#DC2626` | Falling assets & losses |
-| `--color-accent-gold` | `#F5C542` | `#D97706` | Expert Picks border glow & badge |
-
-### Layout & Geometry
-- **Cards**: `12px` border radius (`rounded-card`)
-- **Buttons / Inputs**: `8px` border radius (`rounded-btn`)
-- **Grid & Max Width**: 8px baseline grid, `1200px` maximum page constraint (`max-w-page`)
-- **Transitions**: 150ms–200ms ease animations; no flashy or distracting effects
-
----
-
-## Route Architecture (Stage 0)
-
-| Route | View | Description |
-| :--- | :--- | :--- |
-| `/` | `Home` | Displays top gainers / rising stocks first |
-| `/stocks` | `Stocks` | Comprehensive market scanner placeholder |
-| `/portfolio` | `Portfolio` | Simulated asset distribution and holdings |
-| `/expert-picks` | `ExpertPicks` | Curated top coins with gold border glow |
-| `/expected-profits` | `ExpectedProfits` | Multi-asset projection and scenario calculator |
-| `/future` | `Future` | Coming soon card with 3 planned features |
-| `/appearance` | `Appearance` | Working Dark/Light theme switcher with persistence |
-| `/login` | `Login` | Minimalist authentication placeholder |
-| `/signup` | `Signup` | Account registration placeholder |
-| `*` | `NotFound` | 404 error page with return to home navigation |
-
----
-
-## Getting Started
-
-### 1. Install Dependencies
-```bash
-npm install
+  Home --> useGainers
+  Home --> useStream
+  DevData --> Hooks
+  Hooks --> DataProvider
+  DataProvider --> MockProvider
+  DataProvider --> RealProvider
+  RealProvider --> Proxy
 ```
 
-### 2. Configure Environment
-```bash
-cp .env.example .env.local
-```
+---
 
-### 3. Run Development Server
+## Swapping in a Real API
+
+StockPulse uses a clean provider pattern (`src/data/providers/types.ts`). To switch between mock simulation and live feeds:
+
+1. **Change the Data Provider flag**:
+   In `.env.local` (or production environment variables), set:
+   ```env
+   VITE_DATA_PROVIDER=real
+   ```
+   When set to `real`, `RealProvider` routes quote, candle, AI, and FX requests through the `/api/*` serverless proxy.
+
+2. **Configure Server-Side Secrets**:
+   Set API keys only in your server environment (e.g., Vercel Project Settings or local `.env`):
+   ```env
+   COINGECKO_API_KEY=your_coingecko_key
+   STOCKS_API_KEY=your_alphavantage_or_finnhub_key
+   LLM_API_KEY=your_gemini_or_openai_key
+   RESEND_API_KEY=your_resend_api_key
+   ```
+   No API keys are ever bundled or exposed in client-side code.
+
+3. **Switch to Public WebSocket Stream**:
+   To stream live real-time crypto trades instead of the simulated random walk drift:
+   ```env
+   VITE_STREAM_PROVIDER=binance
+   ```
+   `BinanceWebSocketStream` auto-connects to public Binance trade streams with automatic exponential backoff reconnection.
+
+---
+
+## Serverless Proxy Setup (`/api`)
+
+The proxy layer runs as Vercel serverless functions in production and via Vite dev middleware in local development:
+
+| Endpoint | Method | Purpose | Cache TTL | Rate Limit |
+| :--- | :---: | :--- | :---: | :---: |
+| `/api/quotes` | GET | Quotes, gainers, fear/greed, trending | 30s | 30 req/min |
+| `/api/candles` | GET | 90-day OHLC candlestick series | 5 min | 30 req/min |
+| `/api/fx` | GET | USD / INR exchange conversion | 5 min | 30 req/min |
+| `/api/ai-summary` | GET | Summaries from headlines and price context | 5 min | 30 req/min |
+| `/api/send-alert-email`| POST | Resend alert email notification | None | 30 req/min |
+
+All routes validate input schemas with Zod and enforce IP rate limiting.
+
+---
+
+## Quantitative Calculation Engines (`src/lib`)
+
+- **Technical Indicators** (`src/lib/indicators.ts`):
+  - `calculateSMA(candles, period)`
+  - `calculateEMA(candles, period)`
+  - `calculateRSI(candles, period = 14)`
+  - `calculateBollingerBands(candles, period = 20, multiplier = 2)`
+- **Portfolio Analytics** (`src/lib/calc.ts`):
+  - Consolidated value, cost basis, unrealized P/L ($ and %), asset & category allocation, top/bottom performers.
+- **Exchange CSV Parser** (`src/lib/csv.ts`):
+  - Parses `symbol,quantity,price,date,side`, validates with Zod, and reports errors with 1-based line numbers.
+- **Market Hours** (`src/lib/marketHours.ts`):
+  - Real-time session monitoring for NYSE (`America/New_York`), NSE (`Asia/Kolkata`), and BSE (`Asia/Kolkata`).
+
+---
+
+## Available Scripts
+
 ```bash
+# Run local dev server with API middleware
 npm run dev
-```
 
-### 4. Build for Production
-```bash
+# Run unit test suite (Vitest)
+npm test
+
+# Run linter
+npm run lint
+
+# Typecheck and production build
 npm run build
 ```

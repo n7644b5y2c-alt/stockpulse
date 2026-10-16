@@ -11,39 +11,93 @@
 @tailwind utilities;
 
 :root {
-  /* Default Dark Mode: #0B0D10 */
-  --bg-primary: #0B0D10;
-  --bg-surface: #12151A;
-  --bg-surface-hover: #191E25;
-  --border-color: #1E232B;
-  --text-primary: #E6E8EB;
-  --text-muted: #8A919E;
+  /* Futuristic Dark Mode (Default): #07090D */
+  --bg-primary: #07090D;
+  --bg-surface: rgba(16, 21, 30, 0.65);
+  --bg-surface-hover: rgba(24, 32, 47, 0.75);
+  --bg-card: rgba(14, 18, 26, 0.60);
+  --border-color: rgba(38, 48, 66, 0.60);
+  --border-color-glow: rgba(34, 211, 238, 0.30);
+  --text-primary: #F1F5F9;
+  --text-muted: #94A3B8;
+
+  /* Primary & Secondary Accents */
+  --color-accent-primary: #22D3EE; /* Electric Cyan */
+  --color-accent-primary-bg: rgba(34, 211, 238, 0.12);
+  --color-accent-primary-glow: rgba(34, 211, 238, 0.25);
+  --color-accent-secondary: #8B5CF6; /* Electric Violet */
+  --color-accent-secondary-bg: rgba(139, 92, 246, 0.12);
+
+  /* Gains / Losses */
   --color-profit: #22C55E;
   --color-profit-bg: rgba(34, 197, 94, 0.12);
+  --color-profit-glow: rgba(34, 197, 94, 0.25);
   --color-loss: #EF4444;
   --color-loss-bg: rgba(239, 68, 68, 0.12);
+  --color-loss-glow: rgba(239, 68, 68, 0.25);
+
+  /* Strictly Reserved for Expert Picks Only */
   --color-accent-gold: #F5C542;
   --color-accent-gold-bg: rgba(245, 197, 66, 0.12);
-  --color-accent-gold-glow: rgba(245, 197, 66, 0.25);
-  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  --color-accent-gold-glow: rgba(245, 197, 66, 0.35);
+
+  /* Metals Dedicated Tokens */
+  --color-metal-gold: #E8D9B0; /* Champagne Gold */
+  --color-metal-gold-bg: rgba(232, 217, 176, 0.12);
+  --color-metal-silver: #C9CED6;
+  --color-metal-silver-bg: rgba(201, 206, 214, 0.12);
+  --color-metal-platinum: #AEB7C2;
+  --color-metal-platinum-bg: rgba(174, 183, 194, 0.12);
+  --color-metal-copper: #C77B4A;
+  --color-metal-copper-bg: rgba(199, 123, 74, 0.12);
+
+  --shadow-subtle: 0 4px 20px 0 rgba(0, 0, 0, 0.45);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-glow-cyan: 0 0 25px rgba(34, 211, 238, 0.20);
+  --shadow-glow-gold: 0 0 25px rgba(245, 197, 66, 0.30);
 }
 
 html.light {
-  /* Light Mode */
+  /* Soft-White Futuristic Light Mode */
   --bg-primary: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-surface-hover: #F1F5F9;
-  --border-color: #E2E8F0;
+  --bg-surface: rgba(255, 255, 255, 0.75);
+  --bg-surface-hover: rgba(241, 245, 249, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.70);
+  --border-color: rgba(226, 232, 240, 0.80);
+  --border-color-glow: rgba(6, 182, 212, 0.30);
   --text-primary: #0F172A;
   --text-muted: #64748B;
+
+  --color-accent-primary: #0891B2;
+  --color-accent-primary-bg: rgba(8, 145, 178, 0.10);
+  --color-accent-primary-glow: rgba(8, 145, 178, 0.20);
+  --color-accent-secondary: #7C3AED;
+  --color-accent-secondary-bg: rgba(124, 58, 237, 0.10);
+
   --color-profit: #16A34A;
-  --color-profit-bg: rgba(22, 163, 74, 0.12);
+  --color-profit-bg: rgba(22, 163, 74, 0.10);
+  --color-profit-glow: rgba(22, 163, 74, 0.20);
   --color-loss: #DC2626;
-  --color-loss-bg: rgba(220, 38, 38, 0.12);
+  --color-loss-bg: rgba(220, 38, 38, 0.10);
+  --color-loss-glow: rgba(220, 38, 38, 0.20);
+
   --color-accent-gold: #D97706;
   --color-accent-gold-bg: rgba(217, 119, 6, 0.12);
   --color-accent-gold-glow: rgba(217, 119, 6, 0.25);
-  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+
+  --color-metal-gold: #B49A56;
+  --color-metal-gold-bg: rgba(180, 154, 86, 0.12);
+  --color-metal-silver: #64748B;
+  --color-metal-silver-bg: rgba(100, 116, 139, 0.12);
+  --color-metal-platinum: #475569;
+  --color-metal-platinum-bg: rgba(71, 85, 105, 0.12);
+  --color-metal-copper: #A25A30;
+  --color-metal-copper-bg: rgba(162, 90, 48, 0.12);
+
+  --shadow-subtle: 0 4px 15px 0 rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 30px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow-cyan: 0 0 20px rgba(8, 145, 178, 0.15);
+  --shadow-glow-gold: 0 0 20px rgba(217, 119, 6, 0.20);
 }
 
 * {
@@ -57,12 +111,13 @@ body {
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition: background-color 200ms ease, color 200ms ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar for clean minimalist feel */
+/* Custom futuristic scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -72,8 +127,53 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* Glass card utility */
+.glass-panel {
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+}
+
+.glass-panel-hover:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--border-color-glow);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+/* Expert Picks Animated Border */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px var(--color-accent-gold-glow), inset 0 0 10px rgba(245, 197, 66, 0.1);
+    border-color: rgba(245, 197, 66, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--color-accent-gold-glow), inset 0 0 15px rgba(245, 197, 66, 0.2);
+    border-color: rgba(245, 197, 66, 0.9);
+  }
+}
+
+.gold-glow-border {
+  animation: goldPulse 3s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .gold-glow-border {
+    animation: none !important;
+    border-color: var(--color-accent-gold) !important;
+    box-shadow: 0 0 12px var(--color-accent-gold-glow) !important;
+  }
 }

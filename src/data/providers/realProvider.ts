@@ -2,6 +2,7 @@ import type { DataProvider } from './types';
 import type {
   Stock,
   Coin,
+  Metal,
   Candle,
   ExpertPick,
   PortfolioHolding,
@@ -44,7 +45,15 @@ export class RealProvider implements DataProvider {
     return this.fetchProxy('/api/quotes?type=coin', () => mockProvider.getCoins());
   }
 
-  async getTopGainers(limit: number = 4): Promise<(Stock | Coin)[]> {
+  async getMetals(): Promise<Metal[]> {
+    return this.fetchProxy('/api/quotes?type=metal', () => mockProvider.getMetals());
+  }
+
+  async getMetal(symbol: string): Promise<Metal | null> {
+    return this.fetchProxy(`/api/quotes?symbol=${symbol}&type=metal`, () => mockProvider.getMetal(symbol));
+  }
+
+  async getTopGainers(limit: number = 4): Promise<(Stock | Coin | Metal)[]> {
     return this.fetchProxy(`/api/quotes?gainers=true&limit=${limit}`, () => mockProvider.getTopGainers(limit));
   }
 

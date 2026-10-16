@@ -42,9 +42,27 @@ export const CoinSchema = z.object({
 
 export type Coin = z.infer<typeof CoinSchema>;
 
+export const MetalSchema = z.object({
+  symbol: z.string().min(1),
+  name: z.string().min(1),
+  type: z.literal('metal'),
+  price: z.number(), // USD per troy ounce
+  change24hPct: z.number(),
+  volume: z.number(),
+  marketCap: z.number(),
+  category: z.string(),
+  unit: z.string().default('troy_oz'),
+  sparkline: z.array(z.number()),
+  candles: z.array(CandleSchema).optional(),
+  isExpertPick: z.boolean().optional(),
+});
+
+export type Metal = z.infer<typeof MetalSchema>;
+
 export const MarketItemSchema = z.discriminatedUnion('type', [
   StockSchema,
   CoinSchema,
+  MetalSchema,
 ]);
 
 export type MarketItem = z.infer<typeof MarketItemSchema>;
@@ -75,7 +93,7 @@ export const PortfolioHoldingSchema = z.object({
   id: z.string().min(1),
   symbol: z.string().min(1),
   name: z.string().optional(),
-  assetType: z.enum(['stock', 'coin']),
+  assetType: z.enum(['stock', 'coin', 'metal']),
   quantity: z.number().positive(),
   avgBuyPrice: z.number().positive(),
   buyDate: z.string().min(1),
@@ -97,7 +115,7 @@ export const ExpertPickSchema = z.object({
   id: z.string(),
   symbol: z.string(),
   name: z.string(),
-  assetType: z.enum(['stock', 'coin']),
+  assetType: z.enum(['stock', 'coin', 'metal']),
   rating: z.enum(['Strong Buy', 'Buy']),
   currentPrice: z.number(),
   targetPrice: z.number(),
@@ -163,3 +181,20 @@ export const FxRateSchema = z.object({
 });
 
 export type FxRate = z.infer<typeof FxRateSchema>;
+
+/* Chart Drawing Schema for technical analysis tools */
+export const ChartPointSchema = z.object({
+  time: z.number(),
+  price: z.number(),
+});
+
+export const ChartDrawingSchema = z.object({
+  id: z.string(),
+  symbol: z.string(),
+  type: z.enum(['trendline', 'horizontal', 'fibonacci', 'rectangle']),
+  points: z.array(ChartPointSchema),
+  color: z.string().optional(),
+  createdAt: z.number(),
+});
+
+export type ChartDrawing = z.infer<typeof ChartDrawingSchema>;

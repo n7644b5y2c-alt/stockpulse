@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { checkRateLimit } from './_lib/rateLimit';
-import { getCached, setCached } from './_lib/cache';
-import { getHeadlinesForSymbol } from '../src/data/mock/headlines';
+import { checkRateLimit } from './_lib/rateLimit.ts';
+import { getCached, setCached } from './_lib/cache.ts';
+import { getHeadlinesForSymbol } from '../src/data/mock/headlines.ts';
 
 const QuerySchema = z.object({
   symbol: z.string().min(1),
@@ -32,10 +32,8 @@ export default async function handler(req: any, res: any) {
   }
 
   const headlines = getHeadlinesForSymbol(symbol);
-  const headlineContext = headlines.map((h) => h.headline).join('; ');
+  const headlineContext = headlines.map((h: { headline: string }) => h.headline).join('; ');
 
-  // Note: If process.env.LLM_API_KEY is configured on server, it can call OpenAI/Anthropic/Gemini here.
-  // Otherwise, default to deterministic high-quality summary.
   const summaryData = {
     symbol,
     summary: `${symbol} exhibits disciplined accumulation patterns with robust on-chain/market depth. Trading liquidity remains supportive amid institutional reallocation.`,
@@ -49,7 +47,6 @@ export default async function handler(req: any, res: any) {
     generatedAt: Date.now(),
   };
 
-  // 5 min cache
   setCached(cacheKey, summaryData, 300);
   return res.status(200).json(summaryData);
 }

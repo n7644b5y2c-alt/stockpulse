@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { checkRateLimit } from './_lib/rateLimit';
+import { checkRateLimit } from './_lib/rateLimit.ts';
 
 const BodySchema = z.object({
   email: z.string().email(),
@@ -36,7 +36,6 @@ export default async function handler(req: any, res: any) {
 
   const { email, alert, currentPrice } = parseResult.data;
 
-  // In production, if RESEND_API_KEY is configured:
   const resendApiKey = process.env.RESEND_API_KEY;
   if (resendApiKey) {
     try {
@@ -53,7 +52,7 @@ export default async function handler(req: any, res: any) {
           html: `<p><strong>${alert.symbol}</strong> has crossed <strong>${alert.condition} $${alert.targetPrice}</strong>.</p><p>Current Price: $${currentPrice}</p>`,
         }),
       });
-      const data = await response.json();
+      const data = (await response.json()) as any;
       return res.status(200).json({ success: true, id: data.id });
     } catch (err: any) {
       return res.status(500).json({
@@ -62,7 +61,6 @@ export default async function handler(req: any, res: any) {
     }
   }
 
-  // Simulated email dispatch
   return res.status(200).json({
     success: true,
     id: `simulated-email-${Date.now()}`,
